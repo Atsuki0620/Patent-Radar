@@ -1,0 +1,47 @@
+# 注目特許仕分けくん 設定ファイル
+
+# 実行設定
+run:
+  use_topk: false            # TopK絞り込みを使用するか (MVP: false)
+  use_retrieval_score: false # retrieval_scoreを使用するか (MVP: false)
+  verify_quotes: false       # エビデンス検証を行うか (MVP: false)
+
+# LLM設定
+llm:
+  model: "gpt-4o-mini"       # 使用するモデル
+  temperature: 0.0           # 温度パラメータ (0.0 = 決定論的)
+  response_format: "json"    # 応答フォーマット
+  max_tokens: 320           # 最大トークン数
+  timeout: 30               # タイムアウト（秒）
+
+# ランキング設定
+ranking:
+  method: "llm_only"        # ランキング方法 (MVP: LLM_confidenceのみ)
+  tiebreaker: "pub_number"  # 同点時のタイブレーカー
+
+# 入出力設定
+io:
+  out_csv: "archive/outputs/attention_patents.csv"     # CSV出力先
+  out_jsonl: "archive/outputs/details.jsonl"          # JSONL出力先
+  log_dir: "archive/logs"                             # ログディレクトリ
+
+# 処理設定
+processing:
+  batch_size: 10            # バッチ処理サイズ
+  max_workers: 5            # 並列処理の最大ワーカー数
+  
+# 抽出設定
+extraction:
+  max_abstract_length: 500  # 抄録の最大文字数
+  include_dependent_claims: false  # 従属請求項を含めるか
+  
+# ヒット理由設定
+hit_reason:
+  max_quote_length: 12      # 引用の最大語数
+  max_reasons: 2            # 最大理由数
+
+# デバッグ設定
+debug:
+  enabled: false            # デバッグモードを有効にするか
+  save_intermediate: false  # 中間結果を保存するか
+  verbose: false           # 詳細ログを出力するか

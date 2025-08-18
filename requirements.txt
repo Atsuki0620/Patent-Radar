@@ -1,0 +1,31 @@
+# LLM Integration
+openai
+langchain
+langchain-openai
+
+# Data Processing
+pandas
+numpy
+pydantic
+
+# Configuration
+pyyaml
+python-dotenv
+
+# JSON/JSONL Processing
+jsonlines
+
+# Logging and Utilities
+loguru
+tqdm
+
+# Testing
+pytest
+pytest-asyncio
+pytest-cov
+
+# Type Hints
+typing-extensions
+
+# HTTP Client (for future API integrations)
+httpx
