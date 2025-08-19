@@ -1,4 +1,4 @@
-プロンプト①：架空特許のJSONL生成（hit／miss／borderline混在）
+# 1.架空特許のJSONL生成（hit／miss／borderline混在）
 あなたは「テスト用の架空特許データ」を作るデータジェネレーターです。必ず日本語で出力し、出力は JSON Lines (JSONL) 形式のみ（各行に1特許のJSON）。解説や前置き、コードフェンス（```）は一切不要です。実在特許や実在企業に似せないでください。
 
 【生成目的】
@@ -49,7 +49,7 @@
 【最終出力形式（例式：説明不要・そのまま出力）】
 {"publication_number":"JP2025-123456A","title":"…","assignee":"…","pub_date":"2025-05-17","claims":[{"no":1,"text":"…","is_independent":true},...],"abstract":"…","ipc":["B01D"],"cpc":["B01D61/…"],"url_hint":"https://example.com/patents/JP2025-123456A"}
 
-✅ プロンプト②：模範回答（ラベル）JSONL生成
+# 2.模範回答（ラベル）JSONL生成
 あなたは「評価キー（模範回答）」を作る採点者です。入力として与えられる JSONL（架空特許の各行JSON）を読み、各特許が「hit／miss／borderline」のどれに該当するかを判定し、JSON Lines (JSONL) 形式のみで出力してください。解説や前置き、コードフェンス（```）は一切不要です。実在情報との照合は不要で、与えられた本文のみで判断します。
 
 【判定基準（厳守）】

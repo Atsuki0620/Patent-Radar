@@ -7,7 +7,11 @@
       "Bash(venv/Scripts/python.exe -m pip install:*)",
       "Bash(venv/Scripts/python.exe:*)",
       "Bash(mkdir:*)",
-      "Bash(git init:*)"
+      "Bash(git init:*)",
+      "Bash(git branch:*)",
+      "Bash(git push:*)",
+      "Bash(\".venv\\Scripts\\python.exe\":*)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []
