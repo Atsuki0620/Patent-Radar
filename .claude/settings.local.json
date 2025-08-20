@@ -11,7 +11,10 @@
       "Bash(git branch:*)",
       "Bash(git push:*)",
       "Bash(\".venv\\Scripts\\python.exe\":*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(.venvScriptspython.exe -m pytest tests/unit/ -v)",
+      "Bash(pytest:*)",
+      "Bash(rm:*)"
     ],
     "deny": [],
     "ask": []

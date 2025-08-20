@@ -291,6 +291,29 @@ git push origin main
 - テストの継続実行
 - ドキュメントの同期保持
 
+## トラブルシューティング事例 (Updated: 2025-08-21)
+
+### OpenAI APIライブラリ更新対応
+**問題**: Python OpenAI library v1.100.1+でのテストエラー
+**症状**: `TypeError: APIError.__init__() missing required arguments`
+**原因**: エラークラスのコンストラクタ仕様変更
+**対策手順**:
+1. エラークラス初期化時にrequest, responseオブジェクトを明示的に作成
+2. httpxライブラリのMockオブジェクトを適切に設定
+3. テストコードでは有効なOpenAI形式のダミーAPIキーを使用
+
+### モック設定の安定化
+**課題**: 複数テスト間でのモック状態干渉
+**対応**: 各テストメソッドで明示的なモックリセットを実行
+```python
+mock_client.reset_mock()
+mock_client.batch_completion.side_effect = None
+```
+
+### インターフェース不整合の早期発見
+**教訓**: E2Eテスト実装により設計レベルの問題を特定
+**予防策**: 統合テスト段階での詳細なインターフェース検証
+
 ---
 
 このプロセスフローは、Claude Codeエージェントの特性を活かした高品質・高効率な開発手法です。プロジェクトの性質に応じてカスタマイズして活用してください。

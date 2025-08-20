@@ -158,3 +158,30 @@ claude-code "Review src/[module].py for security, performance, and quality impro
 - All processing is semantic-based, avoiding keyword-heavy approaches like BM25
 - Logging via loguru to `archive/logs/`
 - Outputs saved to `archive/outputs/`
+
+## Troubleshooting (Updated: 2025-08-21)
+
+### OpenAI API Test Errors
+**Issue**: `TypeError: APIError.__init__() missing required arguments`
+**Cause**: OpenAI Python library v1.100.1+ changed error class initialization
+**Solution**: 
+```python
+# Old version (doesn't work)
+openai.APIError("API Error")
+
+# New version (correct)
+mock_request = Mock(spec=httpx.Request)
+mock_request.url = "https://api.openai.com/v1/chat/completions"
+openai.APIError("API Error", request=mock_request, body=None)
+```
+
+### Screener-Pipeline Integration Issue
+**Issue**: `AttributeError: 'LLMPipeline' object has no attribute 'process_invention_summary'`
+**Cause**: Interface mismatch - Screener expects individual processing methods, Pipeline only provides batch processing
+**Current Status**: Known design issue, individual components work properly
+**Resolution**: Integration design review needed (future improvement item)
+
+### Test Execution Notes
+- **Recommended**: Use `python -m pytest` for module execution
+- **API Key**: Tests use valid OpenAI format dummy key: `sk-1234567890123456789012345678901234567890123456789012`
+- **Dependencies**: Explicit httpx import required for mock tests
