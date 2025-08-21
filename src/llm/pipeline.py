@@ -418,9 +418,19 @@ class LLMPipeline:
                             else:
                                 raise PipelineProcessingError(f"LLM processing failed: {result['error']}")
                         else:
+                            # JSON形式の場合、summaryキーから取得
+                            if isinstance(result, dict) and 'summary' in result:
+                                summary_text = result['summary']
+                            elif isinstance(result, dict) and 'content' in result:
+                                summary_text = result['content']
+                            elif isinstance(result, str):
+                                summary_text = result
+                            else:
+                                summary_text = str(result)
+                            
                             results.append({
                                 'status': ProcessingStatus.SUCCESS,
-                                'summary': result.get('content', ''),
+                                'summary': summary_text,
                                 'processing_time': processing_time / len(llm_results),
                                 'original_data': original_data
                             })
@@ -561,10 +571,20 @@ class LLMPipeline:
                             if not original_data.get('claim_1') or not original_data.get('abstract'):
                                 status = ProcessingStatus.PARTIAL
                             
+                            # JSON形式の場合、summaryキーから取得
+                            if isinstance(result, dict) and 'summary' in result:
+                                summary_text = result['summary']
+                            elif isinstance(result, dict) and 'content' in result:
+                                summary_text = result['content']
+                            elif isinstance(result, str):
+                                summary_text = result
+                            else:
+                                summary_text = str(result)
+                            
                             results.append({
                                 'status': status,
                                 'publication_number': original_data.get('publication_number', 'unknown'),
-                                'summary': result.get('content', ''),
+                                'summary': summary_text,
                                 'processing_time': processing_time / len(llm_results),
                                 'original_data': original_data
                             })
@@ -927,6 +947,125 @@ class LLMPipeline:
             }
         
         return stats
+    
+    # ========== アダプターメソッド（単体処理用） ==========
+    
+    def process_invention_summary(self, invention_data: Dict[str, Any]) -> str:
+        """
+        単一の発明アイデアを要約（PatentScreener互換性のため）
+        
+        Args:
+            invention_data: 発明データ
+            
+        Returns:
+            発明要約文字列
+            
+        Raises:
+            PipelineProcessingError: 処理失敗時
+        """
+        try:
+            # バッチ処理を単体処理として実行
+            results = self.process_invention_batch(
+                [invention_data],
+                continue_on_error=False
+            )
+            
+            if not results or results[0]['status'] != ProcessingStatus.SUCCESS:
+                raise PipelineProcessingError("Failed to summarize invention")
+            
+            return results[0]['summary']
+            
+        except Exception as e:
+            logger.error(f"Invention summary processing failed: {e}")
+            raise PipelineProcessingError(f"Invention summary failed: {e}")
+    
+    def process_patent_summary(self, patent_data: Dict[str, Any], invention_summary: str) -> str:
+        """
+        単一の特許を要約（PatentScreener互換性のため）
+        
+        Args:
+            patent_data: 特許データ
+            invention_summary: 発明要約
+            
+        Returns:
+            特許要約文字列
+            
+        Raises:
+            PipelineProcessingError: 処理失敗時
+        """
+        try:
+            # バッチ処理を単体処理として実行
+            results = self.process_patent_batch(
+                [patent_data],
+                invention_summary,
+                concurrent=False,
+                continue_on_error=False
+            )
+            
+            if not results or results[0]['status'] != ProcessingStatus.SUCCESS:
+                raise PipelineProcessingError("Failed to summarize patent")
+            
+            return results[0]['summary']
+            
+        except Exception as e:
+            logger.error(f"Patent summary processing failed: {e}")
+            raise PipelineProcessingError(f"Patent summary failed: {e}")
+    
+    def process_classification(
+        self, 
+        invention_summary: str, 
+        patent_summary: str,
+        patent_data: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """
+        単一の特許を分類（PatentScreener互換性のため）
+        
+        Args:
+            invention_summary: 発明要約
+            patent_summary: 特許要約
+            patent_data: 元の特許データ（メタデータ用）
+            
+        Returns:
+            分類結果辞書
+            
+        Raises:
+            PipelineProcessingError: 処理失敗時
+        """
+        try:
+            # バッチ処理を単体処理として実行
+            classification_pair = {
+                'invention_summary': invention_summary,
+                'patent_summary': patent_summary
+            }
+            
+            results = self.process_classification_batch(
+                [classification_pair],
+                validate_json=True,
+                continue_on_error=False
+            )
+            
+            if not results or results[0]['status'] != ProcessingStatus.SUCCESS:
+                raise PipelineProcessingError("Failed to classify patent")
+            
+            # 元の特許データと分類結果をマージ
+            classification_result = results[0]
+            return {
+                'publication_number': patent_data.get('publication_number'),
+                'title': patent_data.get('title'),
+                'assignee': patent_data.get('assignee'),
+                'pub_date': patent_data.get('pub_date'),
+                'decision': classification_result.get('decision'),
+                'confidence': classification_result.get('confidence'),
+                'hit_reason_1': classification_result.get('hit_reason_1'),
+                'hit_src_1': classification_result.get('hit_src_1'),
+                'hit_reason_2': classification_result.get('hit_reason_2'),
+                'hit_src_2': classification_result.get('hit_src_2'),
+                'url_hint': patent_data.get('url_hint')
+            }
+            
+        except Exception as e:
+            logger.error(f"Classification processing failed: {e}")
+            raise PipelineProcessingError(f"Classification failed: {e}")
     
     def shutdown(self):
         """パイプラインを正常にシャットダウン"""

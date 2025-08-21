@@ -253,7 +253,8 @@ def get_prompt_templates() -> Dict[str, Dict[str, Any]]:
 - 液体分離設備分野との関連性を重視
 - 技術的特徴と効果を簡潔にまとめる
 - {ContentLimits.MAX_SUMMARY_LENGTH}文字以内で要約する
-- 専門用語を適切に使用し、第三者が理解できる表現にする""",
+- 専門用語を適切に使用し、第三者が理解できる表現にする
+- 要約をJSON形式で出力し、"summary"キーにテキストを含める""",
             
             'user_template': """以下の発明内容を要約してください:
 
@@ -272,7 +273,7 @@ def get_prompt_templates() -> Dict[str, Dict[str, Any]]:
 【主要技術要素】
 {key_elements}
 
-上記の発明内容を{max_summary_length}文字以内で要約し、液体分離設備分野における技術的意義を明確に示してください。""",
+上記の発明内容を{max_summary_length}文字以内で要約し、液体分離設備分野における技術的意義を明確に示してください。JSON形式で{{"summary": "要約文"}}として回答してください。""",
             
             'required_fields': ['title'],
             'optional_fields': ['problem', 'solution', 'effects', 'key_elements'],
@@ -285,9 +286,10 @@ def get_prompt_templates() -> Dict[str, Dict[str, Any]]:
 要約の要求事項:
 - 請求項1（独立請求項）と抄録の核心内容を抽出
 - 技術分野、解決課題、技術手段、効果を明確に整理
-- 発明要約との比較が容易な形式で整理
+- 発明要約との比較が容朗な形式で整理
 - {ContentLimits.MAX_SUMMARY_LENGTH}文字以内で要約する
-- 特許固有の表現は一般的な技術用語に言い換える""",
+- 特許固有の表現は一般的な技術用語に言い換える
+- 要約をJSON形式で出力し、"summary"キーにテキストを含める""",
             
             'user_template': """発明要約:
 {invention_summary}
@@ -302,7 +304,7 @@ def get_prompt_templates() -> Dict[str, Dict[str, Any]]:
 【要約】
 {abstract}
 
-上記の特許内容を{max_summary_length}文字以内で要約し、上記発明要約との技術的関連性の判断に適した形式で整理してください。""",
+上記の特許内容を{max_summary_length}文字以内で要約し、上記発明要約との技術的関連性の判断に適した形式で整理してください。JSON形式で{{"summary": "要約文"}}として回答してください。""",
             
             'required_fields': ['publication_number'],
             'optional_fields': ['title', 'claim_1', 'abstract'],
@@ -310,7 +312,7 @@ def get_prompt_templates() -> Dict[str, Dict[str, Any]]:
         },
         
         'classification': {
-            'system': f"""あなたは{PromptDefaults.SYSTEM_ROLE}です。発明アイデアと特許文書の技術的関連性を厳密に判定し、二値分類（hit/miss）で回答してください。
+            'system': f"""あなたは{PromptDefaults.SYSTEM_ROLE}です。発明アイデアと特許文書の技術的関連性を厳密に判定し、二値分類（hit/miss）をJSON形式で回答してください。
 
 判定基準:
 - **hit**: 発明と特許が同一技術分野で、具体的な技術的共通点が複数存在する場合
@@ -334,7 +336,7 @@ def get_prompt_templates() -> Dict[str, Dict[str, Any]]:
 }}
 
 注意事項:
-- 必ずJSON形式で回答する
+- 必ずJSON形式で回答してください
 - hit_reason は具体的技術要素を12語以内で記述
 - hit_src は根拠となった特許部分（請求項または要約）を示す
 - confidence は判定の確信度を正確に反映する""",
@@ -345,7 +347,7 @@ def get_prompt_templates() -> Dict[str, Dict[str, Any]]:
 【特許要約】
 {patent_summary}
 
-上記の発明と特許の技術的関連性を判定し、JSON形式で回答してください。""",
+上記の発明と特許の技術的関連性を判定し、必ずJSON形式で回答してください。""",
             
             'required_fields': ['invention_summary', 'patent_summary'],
             'json_schema': {

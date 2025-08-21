@@ -285,7 +285,10 @@ def validate_patent_structure(patent: Dict[str, Any], index: int) -> None:
             f"Expected format: {{'pub_number': str, 'title': str, ...}}"
         )
     
-    # 必須フィールドの確認
+    # 必須フィールドの確認 - publication_numberからpub_numberへのマッピング対応
+    if 'pub_number' not in patent and 'publication_number' in patent:
+        patent['pub_number'] = patent['publication_number']
+    
     required_fields = ['pub_number']
     missing_fields = [field for field in required_fields if field not in patent]
     
