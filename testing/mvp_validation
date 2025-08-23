@@ -1,0 +1,202 @@
+"""
+MVP完全動作テスト
+実際のワークフローをエンドツーエンドで検証
+"""
+
+import os
+import sys
+import json
+import csv
+from pathlib import Path
+from datetime import datetime
+
+# パスの追加
+sys.path.insert(0, str(Path(__file__).parent))
+
+from src.core.screener import PatentScreener
+from src.core.extract import extract_with_fallback
+from src.core.export import export_to_csv, export_to_jsonl
+from src.ranking.sorter import PatentSorter
+
+def run_mvp_test():
+    """MVPの完全なワークフローテスト"""
+    
+    print("\n" + "="*70)
+    print("       特許スクリーニングシステム MVP テスト")
+    print("="*70)
+    
+    # 入出力パス設定
+    invention_path = Path("test_data/invention_sample.json")
+    patents_path = Path("test_data/patents_sample.jsonl")
+    output_csv = Path("test_output/mvp_results.csv")
+    output_jsonl = Path("test_output/mvp_results.jsonl")
+    
+    # 出力ディレクトリ作成
+    output_csv.parent.mkdir(exist_ok=True)
+    
+    print(f"\n[開始時刻] {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print("\n" + "-"*70)
+    
+    try:
+        # ========== Step 1: データ読み込み ==========
+        print("\n[Step 1] データ読み込み")
+        print("-"*40)
+        
+        # 発明データ読み込み
+        with open(invention_path, 'r', encoding='utf-8') as f:
+            invention_data = json.load(f)
+        print(f"  発明タイトル: {invention_data['title']}")
+        print(f"  キー要素: {len(invention_data.get('key_elements', []))}個")
+        
+        # 特許データ読み込み
+        patents_data = []
+        with open(patents_path, 'r', encoding='utf-8') as f:
+            for line in f:
+                patents_data.append(json.loads(line.strip()))
+        print(f"  特許件数: {len(patents_data)}件")
+        
+        # ========== Step 2: データ抽出 ==========
+        print("\n[Step 2] 特許データ抽出処理")
+        print("-"*40)
+        
+        extracted_patents = []
+        for i, patent in enumerate(patents_data, 1):
+            extracted = extract_with_fallback(patent)
+            extracted_patents.append(extracted)
+            print(f"  [{i}/{len(patents_data)}] {patent['publication_number']}: ", end="")
+            if extracted.get('claim_1'):
+                print(f"OK (claim_1: {len(extracted['claim_1'])}文字)")
+            else:
+                print("SKIP (claim_1なし)")
+        
+        success_count = sum(1 for p in extracted_patents if p.get('claim_1'))
+        print(f"\n  抽出成功: {success_count}/{len(patents_data)}件")
+        
+        # ========== Step 3: 仮想分類（MVP用モック） ==========
+        print("\n[Step 3] 分類処理（モック）")
+        print("-"*40)
+        
+        # 実際のLLM処理の代わりにルールベースで分類
+        classified_results = []
+        for patent in extracted_patents:
+            # 簡単なキーワードマッチングで分類
+            claim_text = (patent.get('claim_1', '') + ' ' + patent.get('abstract', '')).lower()
+            
+            # スコア計算（キーワードマッチ）
+            score = 0
+            keywords = ['ポリマー', '膜', 'AI', '効率', 'エネルギー', '最適化']
+            for keyword in keywords:
+                if keyword.lower() in claim_text:
+                    score += 0.15
+            
+            # 分類結果
+            decision = 'hit' if score >= 0.3 else 'miss'
+            confidence = min(score, 1.0)
+            
+            result = {
+                'pub_number': patent.get('publication_number'),  # CSV用フィールド名
+                'publication_number': patent.get('publication_number'),
+                'title': patent.get('title'),
+                'assignee': patent.get('assignee'),
+                'pub_date': patent.get('pub_date'),
+                'decision': decision,
+                'LLM_confidence': round(confidence, 2),  # CSV用フィールド名
+                'confidence': round(confidence, 2),
+                'hit_reason_1': f"キーワード適合度: {score:.0%}" if decision == 'hit' else '',
+                'hit_src_1': 'claim_1' if decision == 'hit' else '',
+                'hit_reason_2': '',
+                'hit_src_2': '',
+                'url_hint': patent.get('url_hint', '')
+            }
+            classified_results.append(result)
+            
+            status = "[HIT]" if decision == 'hit' else "[MISS]"
+            print(f"  {patent['publication_number']}: {status} (信頼度: {confidence:.2f})")
+        
+        hit_count = sum(1 for r in classified_results if r['decision'] == 'hit')
+        print(f"\n  分類結果: HIT={hit_count}件, MISS={len(classified_results)-hit_count}件")
+        
+        # ========== Step 4: ランキング ==========
+        print("\n[Step 4] ランキング処理")
+        print("-"*40)
+        
+        # 信頼度でソート
+        sorter = PatentSorter()
+        sorted_results = sorter.sort_patents(classified_results)
+        
+        # ランク付け
+        for i, result in enumerate(sorted_results, 1):
+            result['rank'] = i
+        
+        print("  ランキング結果（上位3件）:")
+        for result in sorted_results[:3]:
+            print(f"    #{result['rank']} {result['publication_number']}: "
+                  f"{result['decision']} (信頼度: {result['confidence']})")
+        
+        # ========== Step 5: 出力 ==========
+        print("\n[Step 5] ファイル出力")
+        print("-"*40)
+        
+        # CSV出力
+        export_to_csv(sorted_results, output_csv)
+        print(f"  CSV出力: {output_csv}")
+        
+        # JSONL出力
+        export_to_jsonl(sorted_results, output_jsonl)
+        print(f"  JSONL出力: {output_jsonl}")
+        
+        # ========== 結果サマリー ==========
+        print("\n" + "="*70)
+        print("  実行結果サマリー")
+        print("="*70)
+        
+        print(f"\n[処理統計]")
+        print(f"  入力特許数: {len(patents_data)}件")
+        print(f"  抽出成功数: {success_count}件")
+        print(f"  HIT判定数: {hit_count}件")
+        print(f"  MISS判定数: {len(classified_results)-hit_count}件")
+        
+        print(f"\n[出力ファイル]")
+        print(f"  CSV: {output_csv} ({output_csv.stat().st_size:,} bytes)")
+        print(f"  JSONL: {output_jsonl} ({output_jsonl.stat().st_size:,} bytes)")
+        
+        print(f"\n[完了時刻] {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        
+        # ========== 出力内容確認 ==========
+        print("\n" + "="*70)
+        print("  出力内容サンプル（CSV先頭3行）")
+        print("="*70)
+        
+        with open(output_csv, 'r', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            for i, row in enumerate(reader):
+                if i >= 3:
+                    break
+                print(f"\n[行{i+1}]")
+                print(f"  公開番号: {row['pub_number']}")
+                print(f"  タイトル: {row['title'][:30]}...")
+                print(f"  判定: {row['decision']} (信頼度: {row['LLM_confidence']})")
+        
+        print("\n" + "="*70)
+        print("[SUCCESS] MVPテスト完了")
+        print("="*70)
+        
+        return True
+        
+    except Exception as e:
+        print(f"\n[ERROR] テスト失敗: {e}")
+        import traceback
+        traceback.print_exc()
+        return False
+
+if __name__ == "__main__":
+    success = run_mvp_test()
+    
+    if success:
+        print("\n[INFO] すべてのMVP機能が正常に動作しました")
+        print("[INFO] 実際のLLM統合は有効なAPI keyで実施してください")
+    else:
+        print("\n[WARNING] テストに失敗しました")
+        print("[INFO] エラー内容を確認してください")
+    
+    sys.exit(0 if success else 1)

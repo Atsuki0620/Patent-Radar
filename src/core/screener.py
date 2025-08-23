@@ -610,6 +610,11 @@ class PatentScreener:
         """LLM処理（発明要約、特許要約、分類）"""
         logger.info("Processing with LLM pipeline")
         
+        # パイプラインがNoneの場合のチェック
+        if self._pipeline is None:
+            logger.error("LLM pipeline is not initialized (likely missing API key)")
+            raise ScreenerProcessingError("LLM pipeline not available. Check API key configuration.")
+        
         try:
             # 発明要約の生成
             invention_summary = self._pipeline.process_invention_summary(invention_data)
@@ -621,7 +626,7 @@ class PatentScreener:
             for patent_data in extracted_data:
                 try:
                     # 特許要約
-                    patent_summary = self._pipeline.process_patent_summary(patent_data)
+                    patent_summary = self._pipeline.process_patent_summary(patent_data, invention_summary)
                     
                     # 分類処理
                     classification_result = self._pipeline.process_classification(

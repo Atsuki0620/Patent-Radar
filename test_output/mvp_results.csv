@@ -1,6 +1,0 @@
-rank,pub_number,title,assignee,pub_date,decision,LLM_confidence,hit_reason_1,hit_src_1,hit_reason_2,hit_src_2,url_hint
-1,JP2025-100001A,,,,hit,0.75,,,,,
-2,JP2025-100002A,,,,miss,0.15,,,,,
-3,JP2025-100004A,,,,miss,0.15,,,,,
-4,JP2025-100005A,,,,miss,0.15,,,,,
-5,JP2025-100003A,,,,miss,0,,,,,

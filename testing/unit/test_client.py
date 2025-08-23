@@ -770,10 +770,12 @@ class TestLLMThreadSafety:
         mock_openai.return_value = mock_client
         
         # 各レスポンスが異なることを確認するためのユニークID
-        def create_response(call_count=[0]):
-            call_count[0] += 1
+        def create_response(*args, **kwargs):  # 任意の引数を受け入れる
+            if not hasattr(create_response, 'call_count'):
+                create_response.call_count = 0
+            create_response.call_count += 1
             return ChatCompletion(
-                id=f"chatcmpl-test{call_count[0]}",
+                id=f"chatcmpl-test{create_response.call_count}",
                 object="chat.completion",
                 created=1677652288,
                 model="gpt-4o-mini",
@@ -782,7 +784,7 @@ class TestLLMThreadSafety:
                         index=0,
                         message=ChatCompletionMessage(
                             role="assistant",
-                            content=f'{{"request_id": {call_count[0]}}}'
+                            content=f'{{"request_id": {create_response.call_count}}}'
                         ),
                         finish_reason="stop"
                     )
@@ -853,10 +855,10 @@ class TestLLMMemoryEfficiency:
         
         client = LLMClient(api_key="sk-1234567890123456789012345678901234567890123456789012")
         
-        # 大量のメッセージバッチ
+        # 大量のメッセージバッチ（MAX_BATCH_SIZE以内）
         large_batch = [
             [{"role": "user", "content": f"特許{i}の分析" + "x" * 1000}]
-            for i in range(1000)
+            for i in range(100)  # MAX_BATCH_SIZE = 100
         ]
         
         # メモリ使用量を追跡
@@ -867,7 +869,7 @@ class TestLLMMemoryEfficiency:
         
         # メモリ使用量が妥当な範囲内
         assert peak < 100 * 1024 * 1024  # 100MB未満
-        assert len(results) == 1000
+        assert len(results) == 100
 
     @patch('src.llm.client.OpenAI')
     def test_memory_cleanup_after_error(self, mock_openai):

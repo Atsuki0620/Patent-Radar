@@ -5,6 +5,7 @@ Tests for export module - CSV/JSONL出力機能のテスト
 import pytest
 import json
 import csv
+import sys
 import tempfile
 from pathlib import Path
 from typing import Dict, Any, List
@@ -161,6 +162,10 @@ class TestExportToCSV:
             content = f.read()
             assert '""' in content or '"' in content  # 引用符のエスケープ
 
+    @pytest.mark.skipif(
+        sys.platform == "win32",
+        reason="Windows doesn't have the same permission model as Unix"
+    )
     def test_export_csv_file_permission_error(self, tmp_path):
         """ファイル書き込み権限エラーのテスト"""
         patent_results = [{"rank": 1, "pub_number": "JP2025-100001A"}]

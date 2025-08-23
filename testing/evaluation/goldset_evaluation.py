@@ -18,7 +18,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # パスの追加
-sys.path.insert(0, str(Path(__file__).parent))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from src.core.screener import PatentScreener
 
@@ -45,7 +45,7 @@ class GoldsetEvaluation:
         print("-" * 50)
         
         # 特許データ
-        patents_path = Path("tests/data/patents.jsonl")
+        patents_path = Path("testing/data/patents.jsonl")
         patents_data = []
         
         with open(patents_path, 'r', encoding='utf-8') as f:
@@ -57,7 +57,7 @@ class GoldsetEvaluation:
         print(f"  特許データ: {len(patents_data)}件読み込み完了")
         
         # ゴールドラベル
-        labels_path = Path("tests/data/labels.jsonl")
+        labels_path = Path("testing/data/labels.jsonl")
         gold_labels = {}
         
         with open(labels_path, 'r', encoding='utf-8') as f:

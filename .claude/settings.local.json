@@ -14,7 +14,14 @@
       "Bash(git add:*)",
       "Bash(.venvScriptspython.exe -m pytest tests/unit/ -v)",
       "Bash(pytest:*)",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "Bash(pip show:*)",
+      "Bash(pip install:*)",
+      "Bash(dir:*)",
+      "Bash(powershell:*)",
+      "Bash(del:*)",
+      "Bash(move:*)",
+      "Bash(copy production_test_50.py testingmvp_validation )"
     ],
     "deny": [],
     "ask": []

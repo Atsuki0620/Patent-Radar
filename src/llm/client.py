@@ -76,7 +76,7 @@ class ValidationConstants:
     WARN_MESSAGE_LENGTH = 50000  # 警告しきい値
     MIN_API_KEY_LENGTH = 51  # sk- + 48文字
     MAX_BATCH_SIZE = 100
-    API_KEY_PATTERN = re.compile(r'^sk-[a-zA-Z0-9]{48,}$')  # より具体的な検証
+    API_KEY_PATTERN = re.compile(r'^sk-[a-zA-Z0-9_-]{20,}$')  # OpenAI API keyパターン（プロジェクトキー対応）
 
 class RetryConstants:
     BASE_DELAY = 1.0
@@ -605,8 +605,12 @@ class LLMClient:
     
     def __del__(self):
         """デストラクタ"""
-        if hasattr(self, '_shutdown') and not self._shutdown:
-            self.shutdown()
+        try:
+            if hasattr(self, '_shutdown') and not self._shutdown:
+                self.shutdown()
+        except Exception:
+            # Windows環境でのハンドルエラーを無視
+            pass
 
 
 if __name__ == "__main__":
