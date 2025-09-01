@@ -1,0 +1,34 @@
+{
+  "custom_patentradar_v1.1_final": {
+    "model": {
+      "name": "PatentRadar_v1.1_Final",
+      "description": "最新汎用特許分類システム",
+      "positive_class_name": "HIT",
+      "negative_class_name": "MISS",
+      "prediction_threshold": 0.5,
+      "performance_target": 0.8
+    },
+    "business": {
+      "false_negative_cost": 100000,
+      "false_positive_cost": 10000,
+      "currency": "JPY",
+      "cost_unit_name": "円"
+    },
+    "visualization": {
+      "dpi": 300,
+      "figsize_width": 10,
+      "figsize_height": 8,
+      "style": "seaborn-v0_8-whitegrid",
+      "color_palette": "husl",
+      "font_size_title": 14,
+      "font_size_label": 12
+    },
+    "report": {
+      "title_template": "{model_name} Evaluation Report",
+      "language": "en",
+      "include_business_metrics": true,
+      "include_technical_details": true,
+      "graph_format": "png"
+    }
+  }
+}

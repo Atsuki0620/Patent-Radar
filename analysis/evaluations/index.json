@@ -1,0 +1,53 @@
+{
+  "created_at": "2025-09-02T00:19:01.230083",
+  "last_updated": "2025-09-02T00:40:28.014031",
+  "total_evaluations": 2,
+  "evaluations": [
+    {
+      "eval_id": "PE_20250902_001856_PatentRadar_v1.0_Production",
+      "timestamp": "2025-09-02T00:19:01.231248",
+      "model_name": "PatentRadar_v1.0_Production",
+      "description": "Production system comprehensive evaluation",
+      "data_stats": {
+        "csv_file_path": "C:\\Users\\atsuk\\OneDrive\\ドキュメント\\Claude Code\\2508 注目特許仕分けくん\\analysis\\evaluations\\PE_20250902_001856_PatentRadar_v1.0_Production\\data\\evaluation_dataset_PE_20250902_001856_PatentRadar_v1.0_Production.csv",
+        "total_samples": 54,
+        "positive_samples": 25,
+        "negative_samples": 29
+      },
+      "performance": {
+        "accuracy": 0.8148148148148148,
+        "f1_score": 0.8214285714285714,
+        "auc": 0.8324137931034482
+      },
+      "file_paths": {
+        "report": "C:\\Users\\atsuk\\OneDrive\\ドキュメント\\Claude Code\\2508 注目特許仕分けくん\\analysis\\evaluations\\PE_20250902_001856_PatentRadar_v1.0_Production\\report.html",
+        "metrics": "C:\\Users\\atsuk\\OneDrive\\ドキュメント\\Claude Code\\2508 注目特許仕分けくん\\analysis\\evaluations\\PE_20250902_001856_PatentRadar_v1.0_Production\\data\\comprehensive_metrics_PE_20250902_001856_PatentRadar_v1.0_Production.json",
+        "predictions": "C:\\Users\\atsuk\\OneDrive\\ドキュメント\\Claude Code\\2508 注目特許仕分けくん\\analysis\\evaluations\\PE_20250902_001856_PatentRadar_v1.0_Production\\data\\final_predictions_PE_20250902_001856_PatentRadar_v1.0_Production.csv",
+        "evaluation_dir": "C:\\Users\\atsuk\\OneDrive\\ドキュメント\\Claude Code\\2508 注目特許仕分けくん\\analysis\\evaluations\\PE_20250902_001856_PatentRadar_v1.0_Production"
+      }
+    },
+    {
+      "eval_id": "PE_20250902_004021_PatentRadar_v1.0_Fixed",
+      "timestamp": "2025-09-02T00:40:28.013951",
+      "model_name": "PatentRadar_v1.0_Fixed",
+      "description": "Comprehensive binary classification evaluation",
+      "data_stats": {
+        "csv_file_path": "C:\\Users\\atsuk\\OneDrive\\ドキュメント\\Claude Code\\2508 注目特許仕分けくん\\analysis\\evaluations\\PE_20250902_004021_PatentRadar_v1.0_Fixed\\data\\evaluation_dataset_PE_20250902_004021_PatentRadar_v1.0_Fixed.csv",
+        "total_samples": 54,
+        "positive_samples": 25,
+        "negative_samples": 29
+      },
+      "performance": {
+        "accuracy": 0.8148148148148148,
+        "f1_score": 0.8214285714285714,
+        "auc": 0.8324137931034482
+      },
+      "file_paths": {
+        "report": "C:\\Users\\atsuk\\OneDrive\\ドキュメント\\Claude Code\\2508 注目特許仕分けくん\\analysis\\evaluations\\PE_20250902_004021_PatentRadar_v1.0_Fixed\\report.html",
+        "metrics": "C:\\Users\\atsuk\\OneDrive\\ドキュメント\\Claude Code\\2508 注目特許仕分けくん\\analysis\\evaluations\\PE_20250902_004021_PatentRadar_v1.0_Fixed\\data\\comprehensive_metrics_PE_20250902_004021_PatentRadar_v1.0_Fixed.json",
+        "predictions": "C:\\Users\\atsuk\\OneDrive\\ドキュメント\\Claude Code\\2508 注目特許仕分けくん\\analysis\\evaluations\\PE_20250902_004021_PatentRadar_v1.0_Fixed\\data\\final_predictions_PE_20250902_004021_PatentRadar_v1.0_Fixed.csv",
+        "evaluation_dir": "C:\\Users\\atsuk\\OneDrive\\ドキュメント\\Claude Code\\2508 注目特許仕分けくん\\analysis\\evaluations\\PE_20250902_004021_PatentRadar_v1.0_Fixed"
+      }
+    }
+  ]
+}
